@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./index.css";
+import MainHeader from "./components/MainHeader/MainHeader";
+import Home from "./components/Home/Home";
+import Login from "./components/Login/Login";
+import AuthContext from "./context/auth-context";
 
-function App() {
+const App = (props) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const storedUserLoginformation = localStorage.getItem("isLoggedIn");
+    if (storedUserLoginformation === "1") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+  const loginHandler = (email, password) => {
+    localStorage.setItem("isLoggedIn", "1");
+    setIsLoggedIn(true);
+  };
+  const logoutHandler = () => {
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthContext.Provider
+      value={{
+        login: isLoggedIn,
+        onLogout: logoutHandler,
+      }}
+    >
+      <MainHeader />
+      <div className="main">
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </div>
+    </AuthContext.Provider>
   );
-}
+};
 
 export default App;
